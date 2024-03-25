@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import path from 'path';
 import { rg } from './cmd';
+import { FzfLineTerminal } from './terminal';
 import * as utils from './utils';
 
 function getRgMatchLineCMD() {
@@ -25,13 +26,11 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 
 	//Create output channel
-	let fzf_line = vscode.window.createOutputChannel("fzf_line");
+	let fzfLineChannel = vscode.window.createOutputChannel("fzf_line");
 
 	//Write to output.
-	fzf_line.appendLine('Congratulations, your extension "fzf-line" is now active!');
-	fzf_line.appendLine('if use pwsh, the version of pwsh had better higher then 7.4.1 for avoid the chinese text garbled');
-
-
+	fzfLineChannel.appendLine('Congratulations, your extension "fzf-line" is now active!');
+	fzfLineChannel.appendLine('if use pwsh, the version of pwsh had better higher then 7.4.1 for avoid the chinese text garbled');
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
@@ -39,10 +38,13 @@ export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('fzf-line.helloWorld', () => {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
-		// 
+
+		let fzfLineTerminal = FzfLineTerminal.getTerminal();
+		fzfLineTerminal.show();
+		// 向终端发送命令并执行  
 		let rgMatchLineCMD = getRgMatchLineCMD();
-		fzf_line.show();
-		fzf_line.appendLine(rgMatchLineCMD.commandLine());
+		fzfLineTerminal.sendText(rgMatchLineCMD.commandLine());
+		fzfLineChannel.appendLine(rgMatchLineCMD.commandLine());
 	});
 
 	context.subscriptions.push(disposable);
