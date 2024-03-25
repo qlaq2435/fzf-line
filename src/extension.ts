@@ -25,11 +25,11 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 
 	//Create output channel
-	let orange = vscode.window.createOutputChannel("Orange");
+	let fzf_line = vscode.window.createOutputChannel("fzf_line");
 
 	//Write to output.
-	orange.appendLine('Congratulations, your extension "fzf-line" is now active!');
-	orange.appendLine('if use pwsh, the version of pwsh had better higher then 7.4.1 for avoid the chinese text garbled');
+	fzf_line.appendLine('Congratulations, your extension "fzf-line" is now active!');
+	fzf_line.appendLine('if use pwsh, the version of pwsh had better higher then 7.4.1 for avoid the chinese text garbled');
 
 
 
@@ -41,8 +41,8 @@ export function activate(context: vscode.ExtensionContext) {
 		// Display a message box to the user
 		// 
 		let rgMatchLineCMD = getRgMatchLineCMD();
-		orange.show();
-		orange.appendLine(rgMatchLineCMD.commandLine());
+		fzf_line.show();
+		fzf_line.appendLine(rgMatchLineCMD.commandLine());
 	});
 
 	context.subscriptions.push(disposable);
