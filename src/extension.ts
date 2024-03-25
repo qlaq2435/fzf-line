@@ -2,14 +2,17 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import path from 'path';
-import { rg } from './cmd';
+import { exec } from "child_process";
+import { RG, FzF } from './cmd';
 import { FzfLineTerminal } from './terminal';
 import * as utils from './utils';
 
 function getRgMatchLineCMD() {
-	let rgCMD = new rg();
-	rgCMD.showLineNumber().showColumn().showColor().matchLines().setScope(utils.getActiveEditorRelativePath());
-	return rgCMD;
+	let rg = new RG();
+	rg.showLineNumber().showColumn().showColor().matchLines().setScope(utils.getActiveEditorRelativePath());
+	let fzf = new FzF();
+	fzf.showColor().fuzzyMatch(true);
+	return rg.pipe(fzf).commandLine();
 }
 
 // function getFzfMatchCMD(file) {
@@ -44,10 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		//  sent cmd to terminal exec 
 		let rgMatchLineCMD = getRgMatchLineCMD();
-		fzfLineTerminal.sendText(rgMatchLineCMD.commandLine());
-
-		// log out the cmd exec to output channel
-		fzfLineChannel.appendLine(rgMatchLineCMD.commandLine());
+		fzfLineTerminal.sendText(rgMatchLineCMD);
 	});
 
 	context.subscriptions.push(disposable);

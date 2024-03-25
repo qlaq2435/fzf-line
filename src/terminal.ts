@@ -12,8 +12,7 @@ export class FzfLineTerminal {
                 shellPath: 'pwsh', // 或者你希望使用的 shell 的路径  
                 shellArgs: ['-NoProfile'], // 可选的 shell 参数  
                 cwd: utils.getActiveWorkspacePath(), // 初始工作目录  
-                env: {
-                }
+                env: {}
             };
         }
         return FzfLineTerminal.option;
