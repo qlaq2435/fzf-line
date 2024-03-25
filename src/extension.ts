@@ -41,9 +41,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 		let fzfLineTerminal = FzfLineTerminal.getTerminal();
 		fzfLineTerminal.show();
-		// 向终端发送命令并执行  
+
+		//  sent cmd to terminal exec 
 		let rgMatchLineCMD = getRgMatchLineCMD();
 		fzfLineTerminal.sendText(rgMatchLineCMD.commandLine());
+
+		// log out the cmd exec to output channel
 		fzfLineChannel.appendLine(rgMatchLineCMD.commandLine());
 	});
 
