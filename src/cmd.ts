@@ -43,3 +43,26 @@ export class rg extends cmd {
         return super.appendArg(scope);
     }
 }
+
+
+export class fzf extends cmd {
+    static lineMatchPattern = "$";
+    constructor() {
+        super(`fzf`);
+    }
+    showLineNumber() {
+        return super.appendArg("--line-number");
+    }
+    showColumn() {
+        return super.appendArg("--column");
+    }
+    showColor() {
+        return super.appendArg("--color");
+    }
+    fuzzyMatch(enabled: boolean) {
+        return enabled ? super.appendArg("--enabled") : super.appendArg("--disabled");
+    }
+    setScope(scope: string | undefined) {
+        return super.appendArg(scope);
+    }
+}
