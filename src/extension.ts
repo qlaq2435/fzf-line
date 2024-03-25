@@ -2,67 +2,12 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import path from 'path';
-// Your extension is activated the very first time the command is executed
-// This method is called when your extension is activated
+import { rg } from './cmd';
+import * as utils from './utils';
 
-class cmd {
-	cmder: string;
-	cmdArgs: string;
-	constructor(cmd: string) {
-		this.cmder = cmd;
-		this.cmdArgs = "";
-	}
-	appendArg(param: string | undefined) {
-		if (param !== undefined) {
-			this.cmdArgs = this.cmdArgs.concat(" ", param);
-		}
-		return this;
-	}
-	appendArgs(params: string[] | undefined) {
-		params?.forEach((param) => {
-			this.appendArg(param);
-		});
-		return this;
-	}
-	commandLine() {
-		return this.cmder.concat(" ", this.cmdArgs);
-	}
-}
-
-class rg extends cmd {
-	static lineMatchPattern = "$";
-	constructor() {
-		super(`rg`);
-	}
-	showLineNumber() {
-		return super.appendArg("--line-number");
-	}
-	showColumn() {
-		return super.appendArg("--column");
-	}
-	showColor() {
-		return super.appendArg("--color=always");
-	}
-	matchLines() {
-		return super.appendArg(rg.lineMatchPattern);
-	}
-	setScope(scope: string | undefined) {
-		return super.appendArg(scope);
-	}
-}
-function getActiveEditorRelativePath() {
-	let activeTextEditor = vscode.window.activeTextEditor;
-	if (activeTextEditor !== undefined) {
-		var uri = activeTextEditor.document.uri;
-		var relativePath = vscode.workspace.asRelativePath(uri);
-		return relativePath;
-	}
-	vscode.window.showInformationMessage('Active Text Editor not found, open a text and try again');
-	return undefined;
-}
 function getRgMatchLineCMD() {
 	let rgCMD = new rg();
-	rgCMD.showLineNumber().showColumn().showColor().matchLines().setScope(getActiveEditorRelativePath());
+	rgCMD.showLineNumber().showColumn().showColor().matchLines().setScope(utils.getActiveEditorRelativePath());
 	return rgCMD;
 }
 
@@ -72,6 +17,8 @@ function getRgMatchLineCMD() {
 // }
 
 
+// This method is called when your extension is activated
+// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
