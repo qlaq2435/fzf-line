@@ -58,7 +58,7 @@ export class FzF extends Command {
     preview() {
         // require bat install
         super.appendArg(`--preview "bat --color=always ${utils.getActiveEditorRelativePath()}  --highlight-line {1}"`);
-        super.appendArg(`--preview-window "right,60%,,+{1}+3/3,~3"`);
+        super.appendArg(`--preview-window "right,50%,,+{1}+3/3,~3"`);
         return this;
     }
     reverse() {

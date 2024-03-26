@@ -10,8 +10,7 @@ export class FzfLineTerminal {
     private static option: vscode.TerminalOptions;
 
     // 私有构造函数，防止在类外部使用 new Singleton() 创建实例  
-    private constructor() {
-    }
+    private constructor() { }
 
     private terminal?: vscode.Terminal;
     private pipe?: string;

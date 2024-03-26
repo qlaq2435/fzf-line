@@ -17,11 +17,11 @@ function getFzfMatchLineCMD() {
 }
 
 function jumpToLineInFile(uri: vscode.Uri, lineNumber: number) {
-	// 尝试打开文件  
+	// try open document
 	vscode.window.showTextDocument(uri).then((ed) => {
 		let start = new vscode.Position(lineNumber, 0);
 		ed.selection = new vscode.Selection(start, start);
-		ed.revealRange(new vscode.Range(start, start));
+		ed.revealRange(new vscode.Range(start, start), vscode.TextEditorRevealType.InCenter);
 	});
 }
 
@@ -52,14 +52,15 @@ export function activate(context: vscode.ExtensionContext) {
 			fzfLineTerminal.getTerminal().show();
 			let fzfMatchLineCMD = getFzfMatchLineCMD();
 			fzfLineTerminal.executeCommand(fzfMatchLineCMD, (data: Buffer) => {
-				fzfLineChannel.appendLine(data.toString());
-				fzfLineChannel.appendLine(activeEditor!.document.uri.fsPath);
-				let line = data.toString().split(`:`)[0];
-				jumpToLineInFile(activeEditor!.document.uri, Number(line));
+				let match = data.toString();
+				if (match.length > 0) {
+					fzfLineChannel.appendLine(match);
+					let line = match.split(`:`)[0];
+					jumpToLineInFile(activeEditor!.document.uri, Number(line) - 1);
+				}
 				fzfLineTerminal.getTerminal().hide();
 			});
 		}
-
 	});
 }
 
