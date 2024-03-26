@@ -34,4 +34,7 @@ export function getActiveWorkspacePath() {
 
 export function isTerminalAlive(terminal: vscode.Terminal): boolean {
     return vscode.window.terminals.some(t => t === terminal);
-}  
+}
+export function isWindows() {
+	return process.platform === 'win32';
+}

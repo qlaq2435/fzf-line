@@ -2,10 +2,10 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import path from 'path';
-import { exec } from "child_process";
 import { RG, FzF } from './cmd';
 import { FzfLineTerminal } from './terminal';
 import * as utils from './utils';
+import { FzfPipe } from './pipe';
 
 function getFzfMatchLineCMD() {
 	let rg = new RG();
@@ -35,6 +35,9 @@ export function activate(context: vscode.ExtensionContext) {
 	fzfLineChannel.appendLine('Congratulations, your extension "fzf-line" is now active!');
 	fzfLineChannel.appendLine('if use pwsh, the version of pwsh had better higher then 7.4.1 for avoid the chinese text garbled');
 
+	let fzfPipe = new FzfPipe((data)=>{
+		fzfLineChannel.appendLine(data.toString());
+	})
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
@@ -47,7 +50,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 		//  sent cmd to terminal exec
 		let fzfMatchLineCMD = getFzfMatchLineCMD();
-		fzfLineTerminal.sendText(fzfMatchLineCMD);
+		// FzfLineTerminal.execCmd(fzfMatchLineCMD, fzfLineChannel);
+		fzfLineTerminal.sendText(fzfMatchLineCMD + " | " + `${fzfPipe.fzfPipeScript()} add ${fzfPipe.pipe}`);
 	});
 
 	context.subscriptions.push(disposable);
