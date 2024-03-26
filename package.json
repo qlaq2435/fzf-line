@@ -2,20 +2,22 @@
   "name": "fzf-line",
   "displayName": "fzf-line",
   "description": "use fzf to match line you expected and jump to it",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "publisher": "qlaq2435",
   "engines": {
     "vscode": "^1.87.0"
   },
   "categories": [
     "Other"
   ],
+  "repository": "https://github.com/qlaq2435/fzf-line",
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "fzf-line.helloWorld",
-        "title": "Hello World"
+        "command": "fzf-line.fzf-match-lines",
+        "title": "Fzf Match Line"
       }
     ]
   },
@@ -42,9 +44,11 @@
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.3",
     "webpack": "^5.90.3",
-    "webpack-cli": "^5.1.4"
-  },
-  "dependencies": {
+    "webpack-cli": "^5.1.4",
     "vscode": "^1.1.34"
-  }
+  },
+  "dependencies": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
