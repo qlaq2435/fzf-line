@@ -2,24 +2,28 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import path from 'path';
-import { RG, FzF } from './cmd';
+import { RG, FzF, CommandLineBuilder } from './cmd';
 import { FzfLineTerminal } from './terminal';
 import * as utils from './utils';
-import { FzfPipe } from './pipe';
 
 function getFzfMatchLineCMD() {
-	let rg = new RG();
-	rg.showLineNumber().showColumn().showColor().matchLines().setScope(utils.getActiveEditorRelativePath());
-	let fzf = new FzF();
-	fzf.parseANSI().fuzzyMatch(true).showColor(FzF.defaultColorOption).delimiter(":").preview().reverse();
-	return rg.pipe(fzf).commandLine();
+	let cmdLineBuilder = new CommandLineBuilder();
+	cmdLineBuilder
+		.command(new RG().showLineNumber().showColumn().showColor().matchLines().setScope(utils.getActiveEditorRelativePath()))
+		.pipe()
+		.command(new FzF().parseANSI().fuzzyMatch(true).showColor(FzF.defaultColorOption).delimiter(":").preview().reverse())
+		.extra(utils.getActiveEditorRelativePath());
+	return cmdLineBuilder;
 }
 
-// function getFzfMatchCMD(file) {
-// 	let cmd = `rg --line-number  --column --color=always  "$" ${file} | fzf --ansi --enabled --color "hl:-1:underline,hl+:-1:underline:reverse" --delimiter : --preview "bat --color=always aaa/test.lua  --highlight-line {1} "  --preview-window "right,60%,,+{1}+3/3,~3" --reverse`;
-
-// }
-
+function jumpToLineInFile(uri: vscode.Uri, lineNumber: number) {
+	// 尝试打开文件  
+	vscode.window.showTextDocument(uri).then((ed) => {
+		let start = new vscode.Position(lineNumber, 0);
+		ed.selection = new vscode.Selection(start, start);
+		ed.revealRange(new vscode.Range(start, start));
+	});
+}
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -30,31 +34,33 @@ export function activate(context: vscode.ExtensionContext) {
 
 	//Create output channel
 	let fzfLineChannel = vscode.window.createOutputChannel("fzf_line");
+	let fzfLineTerminal = FzfLineTerminal.getInstance();
 
 	//Write to output.
 	fzfLineChannel.appendLine('Congratulations, your extension "fzf-line" is now active!');
 	fzfLineChannel.appendLine('if use pwsh, the version of pwsh had better higher then 7.4.1 for avoid the chinese text garbled');
 
-	let fzfPipe = new FzfPipe((data)=>{
-		fzfLineChannel.appendLine(data.toString());
-	})
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
 	let disposable = vscode.commands.registerCommand('fzf-line.helloWorld', () => {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
+		let activeEditor = utils.getActiveEditor();
+		if (activeEditor !== undefined) {
+			//  sent cmd to terminal exec
+			fzfLineTerminal.getTerminal().show();
+			let fzfMatchLineCMD = getFzfMatchLineCMD();
+			fzfLineTerminal.executeCommand(fzfMatchLineCMD, (data: Buffer) => {
+				fzfLineChannel.appendLine(data.toString());
+				fzfLineChannel.appendLine(activeEditor!.document.uri.fsPath);
+				let line = data.toString().split(`:`)[0];
+				jumpToLineInFile(activeEditor!.document.uri, Number(line));
+				fzfLineTerminal.getTerminal().hide();
+			});
+		}
 
-		let fzfLineTerminal = FzfLineTerminal.getTerminal();
-		fzfLineTerminal.show();
-
-		//  sent cmd to terminal exec
-		let fzfMatchLineCMD = getFzfMatchLineCMD();
-		// FzfLineTerminal.execCmd(fzfMatchLineCMD, fzfLineChannel);
-		fzfLineTerminal.sendText(fzfMatchLineCMD + " | " + `${fzfPipe.fzfPipeScript()} add ${fzfPipe.pipe}`);
 	});
-
-	context.subscriptions.push(disposable);
 }
 
 // This method is called when your extension is deactivated

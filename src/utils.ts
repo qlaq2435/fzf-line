@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-function getActiveEditor() {
+export function getActiveEditor() {
     let activeTextEditor = vscode.window.activeTextEditor;
     if (activeTextEditor !== undefined) {
         return activeTextEditor;
@@ -36,5 +36,5 @@ export function isTerminalAlive(terminal: vscode.Terminal): boolean {
     return vscode.window.terminals.some(t => t === terminal);
 }
 export function isWindows() {
-	return process.platform === 'win32';
+    return process.platform === 'win32';
 }

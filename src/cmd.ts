@@ -1,41 +1,23 @@
 import *  as utils from "./utils";
 
-class Cmd {
-    cmder: string;
-    cmdArgs: string;
-    producer?: Cmd;
-    consumer?: Cmd;
+class Command {
+    cmdline: string[];
     constructor(cmd: string) {
-        this.cmder = cmd;
-        this.cmdArgs = "";
+        this.cmdline = [];
+        this.cmdline.push(cmd);
     }
     appendArg(param: string | undefined) {
         if (param !== undefined) {
-            this.cmdArgs = this.cmdArgs.concat(" ", param);
+            this.cmdline.push(param);
         }
         return this;
     }
-    appendArgs(params: string[] | undefined) {
-        params?.forEach((param) => {
-            this.appendArg(param);
-        });
-        return this;
-    }
-    pipe(consumer: Cmd) {
-        consumer.producer = this;
-        this.consumer = consumer;
-        return consumer;
-    }
-    commandLine() {
-        let cmdline = this.cmder.concat(" ", this.cmdArgs);
-        if (this.producer !== undefined) {
-            cmdline = this.producer.commandLine().concat(" | ", cmdline);
-        }
-        return cmdline;
+    build() {
+        return this.cmdline.join(' ');
     }
 }
 
-export class RG extends Cmd {
+export class RG extends Command {
     static lineMatchPattern = "$";
     constructor() {
         super(`rg`);
@@ -57,33 +39,67 @@ export class RG extends Cmd {
     }
 }
 
-
-export class FzF extends Cmd {
+export class FzF extends Command {
     static lineMatchPattern = "$";
     static defaultColorOption = "hl:-1:underline,hl+:-1:underline:reverse";
     constructor() {
         super(`fzf`);
     }
     parseANSI() {
-        return super.appendArg("--ansi")
+        return super.appendArg("--ansi");
     }
     showColor(option: string) {
         return super.appendArg(`--color "${option}"`);
     }
-    delimiter (pattern: string){
+    delimiter(pattern: string) {
         // Field delimiter regex (default: AWK-style)
         return super.appendArg(`--delimiter ${pattern}`);
     }
-    preview(){
+    preview() {
         // require bat install
         super.appendArg(`--preview "bat --color=always ${utils.getActiveEditorRelativePath()}  --highlight-line {1}"`);
         super.appendArg(`--preview-window "right,60%,,+{1}+3/3,~3"`);
         return this;
     }
     reverse() {
-        super.appendArg(`--reverse`);
+        return super.appendArg(`--reverse`);
     }
     fuzzyMatch(enabled: boolean) {
         return enabled ? super.appendArg("--enabled") : super.appendArg("--disabled");
     }
 }
+
+export class CommandLineBuilder {
+    private commands: string[] = [];
+    private extraInfo?: string;
+    public command(cmd: Command): this {
+        this.commands.push(cmd.build());
+        return this;
+    }
+
+    public pipe(): this {
+        // 确保不是第一个命令前添加管道符号  
+        if (this.commands.length > 0) {
+            this.commands.push('|');
+        }
+        return this;
+    }
+
+    public redirect(output: string): this {
+        // 确保不是第一个命令前添加重定向符号  
+        if (this.commands.length > 0) {
+            this.commands.push('>');
+        }
+        this.commands.push(output);
+        return this;
+    }
+
+    public extra(info: string | undefined): this {
+        this.extraInfo = info;
+        return this;
+    }
+
+    public build(): string {
+        return this.commands.join(' ');
+    }
+}  
