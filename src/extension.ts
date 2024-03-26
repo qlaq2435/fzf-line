@@ -7,11 +7,11 @@ import { RG, FzF } from './cmd';
 import { FzfLineTerminal } from './terminal';
 import * as utils from './utils';
 
-function getRgMatchLineCMD() {
+function getFzfMatchLineCMD() {
 	let rg = new RG();
 	rg.showLineNumber().showColumn().showColor().matchLines().setScope(utils.getActiveEditorRelativePath());
 	let fzf = new FzF();
-	fzf.showColor().fuzzyMatch(true);
+	fzf.parseANSI().fuzzyMatch(true).showColor(FzF.defaultColorOption).delimiter(":").preview().reverse();
 	return rg.pipe(fzf).commandLine();
 }
 
@@ -45,9 +45,9 @@ export function activate(context: vscode.ExtensionContext) {
 		let fzfLineTerminal = FzfLineTerminal.getTerminal();
 		fzfLineTerminal.show();
 
-		//  sent cmd to terminal exec 
-		let rgMatchLineCMD = getRgMatchLineCMD();
-		fzfLineTerminal.sendText(rgMatchLineCMD);
+		//  sent cmd to terminal exec
+		let fzfMatchLineCMD = getFzfMatchLineCMD();
+		fzfLineTerminal.sendText(fzfMatchLineCMD);
 	});
 
 	context.subscriptions.push(disposable);

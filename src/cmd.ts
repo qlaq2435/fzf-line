@@ -1,3 +1,5 @@
+import *  as utils from "./utils";
+
 class Cmd {
     cmder: string;
     cmdArgs: string;
@@ -58,11 +60,28 @@ export class RG extends Cmd {
 
 export class FzF extends Cmd {
     static lineMatchPattern = "$";
+    static defaultColorOption = "hl:-1:underline,hl+:-1:underline:reverse";
     constructor() {
         super(`fzf`);
     }
-    showColor() {
-        return super.appendArg("--color");
+    parseANSI() {
+        return super.appendArg("--ansi")
+    }
+    showColor(option: string) {
+        return super.appendArg(`--color "${option}"`);
+    }
+    delimiter (pattern: string){
+        // Field delimiter regex (default: AWK-style)
+        return super.appendArg(`--delimiter ${pattern}`);
+    }
+    preview(){
+        // require bat install
+        super.appendArg(`--preview "bat --color=always ${utils.getActiveEditorRelativePath()}  --highlight-line {1}"`);
+        super.appendArg(`--preview-window "right,60%,,+{1}+3/3,~3"`);
+        return this;
+    }
+    reverse() {
+        super.appendArg(`--reverse`);
     }
     fuzzyMatch(enabled: boolean) {
         return enabled ? super.appendArg("--enabled") : super.appendArg("--disabled");
