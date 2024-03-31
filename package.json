@@ -2,11 +2,12 @@
   "name": "fzf-line",
   "displayName": "fzf-line",
   "description": "use fzf to match line you expected and jump to it",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "publisher": "qlaq2435",
   "engines": {
     "vscode": "^1.87.0"
   },
+  "icon": "icon.png",
   "categories": [
     "Other"
   ],
