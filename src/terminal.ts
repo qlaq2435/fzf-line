@@ -15,10 +15,11 @@ export class FzfLineTerminal {
     private terminal?: vscode.Terminal;
     private pipe?: string;
     private server?: net.Server;
+    private static terminalName = "fzf_line";
     private static getOptions() {
         if (FzfLineTerminal.option === undefined) {
             FzfLineTerminal.option = {
-                name: 'fzf_line',
+                name: FzfLineTerminal.terminalName,
                 shellPath: 'pwsh', // 或者你希望使用的 shell 的路径
                 shellArgs: ['-NoProfile'], // 可选的 shell 参数
                 cwd: utils.getActiveWorkspacePath(), // 初始工作目录
@@ -26,6 +27,14 @@ export class FzfLineTerminal {
             };
         }
         return FzfLineTerminal.option;
+    }
+
+    public static removeExistsTerminal() {
+        vscode.window.terminals.forEach(t => {
+            if (t.name === FzfLineTerminal.terminalName) {
+                t.dispose();
+            }
+        });
     }
 
     // 公开的静态方法用于获取单例实例  
