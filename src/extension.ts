@@ -2,17 +2,20 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import path from 'path';
-import { RG, FzF, CommandLineBuilder } from './cmd';
+import { RG, FzF, echo, CommandLineBuilder } from './cmd';
 import { FzfLineTerminal } from './terminal';
 import * as utils from './utils';
 
-function getFzfMatchLineCMD() {
+function getFzfMatchLineCMD(fzfLineTerminal: FzfLineTerminal) {
 	let cmdLineBuilder = new CommandLineBuilder();
 	cmdLineBuilder
 		.command(new RG().showLineNumber().showColumn().showColor().matchLines().setScope(utils.getActiveEditorRelativePath()))
 		.pipe()
 		.command(new FzF().parseANSI().fuzzyMatch(true).showColor(FzF.defaultColorOption).delimiter(":").preview().reverse())
-		.extra(utils.getActiveEditorRelativePath());
+		.redirect(fzfLineTerminal.getPipe())
+		.append()
+		.command(new echo().content("finished"))
+		.redirect(fzfLineTerminal.getPipe());
 	return cmdLineBuilder;
 }
 
@@ -50,12 +53,12 @@ export function activate(context: vscode.ExtensionContext) {
 		if (activeEditor !== undefined) {
 			//  sent cmd to terminal exec
 			fzfLineTerminal.getTerminal().show();
-			let fzfMatchLineCMD = getFzfMatchLineCMD();
+			let fzfMatchLineCMD = getFzfMatchLineCMD(fzfLineTerminal);
 			fzfLineTerminal.executeCommand(fzfMatchLineCMD, (data: Buffer) => {
 				let match = data.toString();
 				if (match.length > 0) {
-					fzfLineChannel.appendLine(match);
 					let line = match.split(`:`)[0];
+					fzfLineChannel.appendLine(line);
 					jumpToLineInFile(activeEditor!.document.uri, Number(line) - 1);
 				}
 				fzfLineTerminal.getTerminal().hide();

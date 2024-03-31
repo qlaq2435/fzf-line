@@ -70,7 +70,7 @@ export class FzfLineTerminal {
         let idx = 0;
         while (!this.pipe) {
             try {
-                let pipe = `\\\\?\\pipe\\fzf-pipe-${process.pid}`;
+                let pipe = `\\\\.\\\\pipe\\fzf-pipe-${process.pid}`;
                 if (idx > 0) { pipe += `-${idx}`; }
                 this.pipe = pipe;
             } catch (e: any) {
@@ -87,7 +87,7 @@ export class FzfLineTerminal {
     }
 
     executeCommand(cmdline: CommandLineBuilder, onExecResult: (data: Buffer) => void) {
-        let commandLine = cmdline.redirect(this.getPipe()).build();
+        let commandLine = cmdline.build();
         this.currentPipeConsumer = onExecResult;
         this.getTerminal().sendText(commandLine, true);
     }

@@ -1,4 +1,4 @@
-import *  as utils from "./utils";
+import * as utils from "./utils";
 
 class Command {
     cmdline: string[];
@@ -61,11 +61,23 @@ export class FzF extends Command {
         super.appendArg(`--preview-window "right,50%,,+{1}+3/3,~3"`);
         return this;
     }
+    printQuery() {
+        return super.appendArg(`--print-query --exit-0`);
+    }
     reverse() {
         return super.appendArg(`--reverse`);
     }
     fuzzyMatch(enabled: boolean) {
         return enabled ? super.appendArg("--enabled") : super.appendArg("--disabled");
+    }
+}
+export class echo extends Command {
+    constructor() {
+        super(`echo`);
+    }
+
+    content(output: string) {
+        return super.appendArg(`${output}`);
     }
 }
 
@@ -85,17 +97,20 @@ export class CommandLineBuilder {
         return this;
     }
 
+    public append(): this {
+        // 确保不是第一个命令前添加重定向符号  
+        if (this.commands.length > 0) {
+            this.commands.push(';');
+        }
+        return this;
+    }
+
     public redirect(output: string): this {
         // 确保不是第一个命令前添加重定向符号  
         if (this.commands.length > 0) {
             this.commands.push('>');
         }
         this.commands.push(output);
-        return this;
-    }
-
-    public extra(info: string | undefined): this {
-        this.extraInfo = info;
         return this;
     }
 
